@@ -40,7 +40,7 @@ if submitted and user_input.strip():
     st.session_state.messages.append({"role": "user", "content": user_input})
     reply = None
     try:
-        response = requests.post("http://localhost:8000/chat", json={
+        response = requests.post("https://stan-chatbot-backend.onrender.com", json={
             "user_id": st.session_state.user_id,
             "message": user_input
         })
@@ -78,7 +78,7 @@ if uploaded_pdf:
     st.session_state.messages.append({"role": "user", "content": summary_prompt})
 
     try:
-        response = requests.post("http://localhost:8000/chat", json={
+        response = requests.post("https://stan-chatbot-backend.onrender.com", json={
             "user_id": st.session_state.user_id,
             "message": summary_prompt
         })

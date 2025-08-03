@@ -84,10 +84,3 @@ from fastapi.responses import JSONResponse
 @app.get("/")
 def root():
     return JSONResponse(content={"message": "STAN Chatbot backend is running 🚀"})
-
-
-from fastapi.responses import JSONResponse
-
-@app.get("/")
-def root():
-    return JSONResponse(content={"message": "STAN Chatbot backend is running 🚀"})

@@ -88,9 +88,9 @@ GEMINI_API_KEY=your-key-here
 
 ## 📸 Screenshots
 
-![Diagram](/Users/Abhishek/Desktop/Abhishek/STAN/images/Homepage.png)
+![Diagram](/images/Homepage.png)
 
-![Diagram](/Users/Abhishek/Desktop/Abhishek/STAN/images/reply.png)
+![Diagram](/images/reply.png)
 
 &#x20;
 

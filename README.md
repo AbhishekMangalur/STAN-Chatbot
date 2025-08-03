@@ -52,7 +52,7 @@ This app can be deployed via:
 git clone https://github.com/your-username/stan-chatbot.git
 cd stan-chatbot
 python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate
+source venv/bin/activate  # or venv/Scripts/activate
 pip install -r requirements.txt
 
 # Run Backend
@@ -87,6 +87,10 @@ GEMINI_API_KEY=your-key-here
 ---
 
 ## 📸 Screenshots
+
+![Diagram](/Users/Abhishek/Desktop/Abhishek/STAN/images/Homepage.png)
+
+![Diagram](/Users/Abhishek/Desktop/Abhishek/STAN/images/reply.png)
 
 &#x20;
 

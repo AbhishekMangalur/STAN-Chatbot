@@ -1,87 +1,111 @@
-💬 STAN Chatbot – Human-Like Conversational Agent
-STAN is a personalized, context-aware chatbot powered by a local LLM (Mistral or LLaMA3 via Ollama). Built with FastAPI and Streamlit, STAN adapts to user emotions, remembers personal information, and performs intelligent tasks like document summarization — all running locally without API costs.
+# 💬 STAN Chatbot - Intelligent Conversational Agent
 
-🚀 Features
-Feature	Description
-🧠 Human-Like Responses	Generates natural, varied replies (not robotic or templated)
-🗣️ Adaptive Tone Matching	Detects emotional tone & adjusts style (happy, angry, neutral, etc.)
-📦 Long-Term Memory	Remembers user name, location, interests across sessions (TinyDB)
-🔒 Secure API-Free Setup	Runs Mistral/LLaMA3 locally via Ollama — no billing, no tokens
-🧾 PDF Summarization	Upload a PDF and STAN will summarize it intelligently
-🧠 Identity Recall	Bot remembers facts like “I live in Delhi” or “My favorite color is blue”
-🎛 Modular Architecture	Built using FastAPI (backend) and Streamlit (frontend)
-📤 Enter-to-Send UI	Press Enter to send message (Shift+Enter for newline)
+Welcome to the STAN Chatbot project! This AI-powered assistant demonstrates human-like interaction, memory, tone awareness, and local+cloud integration. Designed as part of the **STAN Internship Challenge**, this chatbot can be embedded into user-generated content (UGC) platforms and social apps.
 
-📂 Project Structure
+---
 
-📁 STAN/
-├── app.py                # FastAPI backend (POST /chat)
-├── chatbot.py            # Core logic for tone, model, and memory
-├── memory.py             # Persistent memory using TinyDB
-├── utils.py              # Tone detection and identity handling
-├── config.py             # Loads environment variables
-├── streamlit_chat.py     # Streamlit-based UI
-├── requirements.txt      # Python dependencies
-├── memory.json           # Chat memory storage
-├── .env                  # For any keys (though not needed with Ollama)
-└── README.md             # You're here!
+## 🔥 Features Implemented
 
-🖥️ Installation
+| Feature                      | Description                                                            |
+| ---------------------------- | ---------------------------------------------------------------------- |
+| 💡 Local + Cloud LLM Support | Runs locally with Ollama (Mistral/LLaMA3) or via Gemini Flash 2.5 API  |
+| 🧠 Long-Term Memory Recall   | Remembers user identity and preferences with TinyDB                    |
+| 🗣️ Tone Adaptation          | Detects tone (happy, sad, angry) and adapts response style dynamically |
+| 👥 Personalized Interaction  | Builds context with each conversation to personalize replies           |
+| 📄 PDF Summarization         | Upload a PDF and receive a summary via chat                            |
+| 📬 Chat UI with Streamlit    | Modern UI with Enter-to-send and chat bubbles                          |
+| 📁 Modular FastAPI Backend   | Clean, scalable architecture with memory and chatbot separation        |
+| 🔐 Secure Config Management  | .env and config.py for environment settings                            |
 
-Clone this repo:
-git clone https://github.com/yourusername/STAN-chatbot.git
+---
 
-cd STAN-chatbot
+## 🏗️ Project Structure
 
-Create a virtual environment:
+```
+stan-chatbot/
+├── main.py              # FastAPI entry point
+├── chatbot.py           # Chat logic (Gemini API or local Ollama)
+├── memory.py            # TinyDB-based memory handling
+├── utils.py             # Tone detection + identity extraction
+├── streamlit_chat.py    # Frontend UI via Streamlit
+├── requirements.txt     # Dependencies
+├── .env                 # API keys and secrets (excluded via .gitignore)
+├── config.py            # Loads environment variables
+└── memory.json          # Persistent memory store
+```
+
+---
+
+## 🚀 Deployment
+
+This app can be deployed via:
+
+* ✅ Localhost (`uvicorn main:app` + `streamlit run streamlit_chat.py`)
+* ☁️ Render (FastAPI backend hosted)
+* ⛅ HuggingFace Spaces (Optional for UI)
+
+---
+
+## 📥 Installation (Local)
+
+```bash
+git clone https://github.com/your-username/stan-chatbot.git
+cd stan-chatbot
 python -m venv venv
-source venv/bin/activate   # or venv\Scripts\activate on Windows
-
-Install dependencies:
+source venv/bin/activate  # or venv\Scripts\activate
 pip install -r requirements.txt
 
-Install Ollama and a model:
-Install Ollama → https://ollama.com/download
-
-Then pull a model:
-ollama run mistral   # or ollama run llama3
-
-▶️ Running the App
-In one terminal, start the FastAPI backend:
+# Run Backend
 uvicorn main:app --reload
 
-In another terminal, start the frontend:
+# Run Frontend
 streamlit run streamlit_chat.py
+```
 
-Then visit http://localhost:8501 in your browser.
+---
 
-✅ Test Case Coverage
-This project fulfills the full STAN Internship Challenge rubric:
+## ⚙️ Gemini API Setup
 
-✅ Long-term memory recall
+1. Get API key from [https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
+2. Add to `.env`:
 
-✅ Personalized tone adaptation
+```
+GEMINI_API_KEY=your-key-here
+```
 
-✅ Identity consistency under pressure
+---
 
-✅ PDF summarization
+## 🧪 Test Cases (Validated)
 
-✅ No hallucinations or contradictions
+* ✅ Long-Term Memory: Remembers name, likes, facts
+* ✅ Tone Matching: Detects sadness, humor, emotion
+* ✅ Personalization: Remembers interests, adjusts style
+* ✅ Naturalness: Varies replies, no template loops
+* ✅ Identity Consistency: Doesn’t break character
+* ✅ Hallucination Safety: No false claims or memories
 
-✅ Context reuse (e.g., “You said you like anime”)
+---
 
-✅ Natural conversation style (no templates)
+## 📸 Screenshots
 
-📄 Sample Prompts to Try
-I live in Bangalore.
+&#x20;
 
-My name is Abhishek.
+---
 
-I'm feeling really down today.
+## 📌 Architecture Overview
 
-What's the summary of this PDF? (Upload a file)
+* User Input → Streamlit UI → FastAPI Backend
+* Gemini API or Ollama → Response → Memory Update
+* PDF Summarization → Context-aware Summary
 
-Do you remember where I live?
+---
 
-📘 License
-This project is developed for educational purposes and is free to use under the MIT License.
+## 👨‍💻 Contributors
+
+* Abhishek M (Developer)
+
+---
+
+## 📄 License
+
+This project is licensed for educational use as part of the STAN Internship Challenge.

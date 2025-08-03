@@ -79,6 +79,12 @@ async def chat(request: Request):
     except Exception as e:
         return {"response": f"Server error: {str(e)}"}
 
+from fastapi.responses import JSONResponse
+
+@app.get("/")
+def root():
+    return JSONResponse(content={"message": "STAN Chatbot backend is running 🚀"})
+
 
 from fastapi.responses import JSONResponse
 

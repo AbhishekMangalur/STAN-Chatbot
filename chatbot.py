@@ -59,17 +59,17 @@ def generate_response(message, memory):
             return reply, memory
 
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-2.5-flash")
         chat = model.start_chat(history=[
             {"role": "user" if msg["role"] == "user" else "model", "parts": [msg["content"]]}
             for msg in memory
         ])
         response = chat.send_message(message)
         reply = response.text.strip()
-        print("✅ Gemini reply:", reply)
+        print("[Gemini reply]:", reply)
 
     except Exception as e:
-        print("❌ Gemini error:", e)
+        print("[Gemini error]:", e)
         return f"⚠️ Sorry, I encountered an error processing that. {e}", memory
 
     memory.append({"role": "user", "content": message})

@@ -1,7 +1,10 @@
 import streamlit as st
 import requests
-import fitz
+import pymupdf
 import time
+import os
+
+BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000/chat")
 
 st.set_page_config(page_title="STAN Chatbot", page_icon="💬")
 
@@ -11,6 +14,7 @@ st.subheader("Ask me anything. My tone adapts. I remember things too!")
 # Initialize session state
 if "messages" not in st.session_state:
     st.session_state.messages = []
+
 if "user_id" not in st.session_state:
     st.session_state.user_id = "user123"
 
@@ -37,17 +41,30 @@ with st.form(key="chat_form", clear_on_submit=True):
 
 # Chat logic
 if submitted and user_input.strip():
-    st.session_state.messages.append({"role": "user", "content": user_input})
+    st.session_state.messages.append({
+        "role": "user",
+        "content": user_input
+    })
+
     reply = None
+
     try:
-        response = requests.post("https://stan-chatbot-backend.onrender.com/chat", json={
-            "user_id": st.session_state.user_id,
-            "message": user_input
-        })
+        response = requests.post(
+            BACKEND_URL,
+            json={
+                "user_id": st.session_state.user_id,
+                "message": user_input
+            }
+        )
+
         if response.status_code == 200:
-            reply = response.json().get("response", "🤖: Sorry, I couldn’t understand that.")
+            reply = response.json().get(
+                "response",
+                "🤖: Sorry, I couldn’t understand that."
+            )
         else:
             reply = f"⚠️ Server error: {response.status_code}"
+
     except Exception as e:
         reply = f"⚠️ Error: {e}"
 
@@ -55,35 +72,65 @@ if submitted and user_input.strip():
     if reply:
         streamed_reply = ""
         placeholder = st.empty()
+
         for word in reply.split():
             streamed_reply += word + " "
             placeholder.markdown(f"🤖: {streamed_reply}")
             time.sleep(0.04)
-        st.session_state.messages.append({"role": "assistant", "content": streamed_reply})
+
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": streamed_reply
+        })
 
 # Display chat history
 for msg in st.session_state.messages:
-    with st.chat_message("user" if msg["role"] == "user" else "assistant"):
-        st.markdown(f"{'👤' if msg['role'] == 'user' else '🤖'}: {msg['content']}")
+    with st.chat_message(
+        "user" if msg["role"] == "user" else "assistant"
+    ):
+        st.markdown(
+            f"{'👤' if msg['role'] == 'user' else '🤖'}: {msg['content']}"
+        )
 
 # Optional PDF upload
 uploaded_pdf = st.file_uploader("📄 Upload a PDF", type="pdf")
+
 if uploaded_pdf:
-    doc = fitz.open(stream=uploaded_pdf.read(), filetype="pdf")
+    doc = pymupdf.open(
+        stream=uploaded_pdf.read(),
+        filetype="pdf"
+    )
+
     text = ""
+
     for page in doc:
         text += page.get_text()
 
     summary_prompt = f"Summarize this document:\n{text[:2000]}"
-    st.session_state.messages.append({"role": "user", "content": summary_prompt})
+
+    st.session_state.messages.append({
+        "role": "user",
+        "content": summary_prompt
+    })
 
     try:
-        response = requests.post("https://stan-chatbot-backend.onrender.com/chat", json={
-            "user_id": st.session_state.user_id,
-            "message": summary_prompt
-        })
-        summary_reply = response.json().get("response", "⚠️ Summary failed.")
+        response = requests.post(
+            BACKEND_URL,
+            json={
+                "user_id": st.session_state.user_id,
+                "message": summary_prompt
+            }
+        )
+
+        summary_reply = response.json().get(
+            "response",
+            "⚠️ Summary failed."
+        )
+
     except Exception as e:
         summary_reply = f"⚠️ Error: {e}"
 
-    st.session_state.messages.append({"role": "assistant", "content": summary_reply})
+    st.session_state.messages.append({
+        "role": "assistant",
+        "content": summary_reply
+    })

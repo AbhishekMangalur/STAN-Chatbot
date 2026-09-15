@@ -52,25 +52,27 @@ This app can be deployed via:
 git clone https://github.com/your-username/stan-chatbot.git
 cd stan-chatbot
 python -m venv venv
-source venv/bin/activate  # or venv/Scripts/activate
+source venv/bin/activate  # or venv\Scripts\activate
 pip install -r requirements.txt
 
-# Run Backend
-uvicorn main:app --reload
+# Run Backend (Terminal 1)
+uvicorn main:app --reload --port 8000
 
-# Run Frontend
+# Run Frontend (Terminal 2)
 streamlit run streamlit_chat.py
 ```
+
+> **Note:** By default, `streamlit_chat.py` connects to `http://127.0.0.1:8000/chat`. You can override this by setting the `BACKEND_URL` environment variable.
 
 ---
 
 ## ⚙️ Gemini API Setup
 
-1. Get API key from [https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
-2. Add to `.env`:
+1. Get an API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Add it to your `.env` file:
 
-```
-GEMINI_API_KEY=your-key-here
+```env
+GOOGLE_API_KEY=your-key-here
 ```
 
 ---

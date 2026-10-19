@@ -68,16 +68,70 @@ with st.form(
     submitted = st.form_submit_button("Send")
 
 
+# Sidebar controls
+with st.sidebar:
+    st.header("⚙️ Controls")
+    st.session_state.user_id = st.text_input("User ID:", value=st.session_state.user_id)
+    if st.button("🗑️ Clear Chat History"):
+        st.session_state.messages = []
+        st.rerun()
+
+# Optional PDF upload (placed above chat for easy access)
+with st.expander("📄 Upload a PDF for Summary", expanded=False):
+    uploaded_pdf = st.file_uploader(
+        "Choose a PDF file",
+        type="pdf",
+        key="pdf_uploader"
+    )
+
+    if uploaded_pdf and st.session_state.get("last_uploaded_pdf") != uploaded_pdf.name:
+        st.session_state.last_uploaded_pdf = uploaded_pdf.name
+        reader = PdfReader(io.BytesIO(uploaded_pdf.read()))
+        text = ""
+        for page in reader.pages:
+            extracted = page.extract_text()
+            if extracted:
+                text += extracted
+
+        summary_prompt = f"Summarize this document:\n{text[:2000]}"
+        st.session_state.messages.append({
+            "role": "user",
+            "content": summary_prompt
+        })
+
+        try:
+            response = requests.post(
+                f"{BACKEND_URL}/chat",
+                json={
+                    "user_id": st.session_state.user_id,
+                    "message": summary_prompt
+                },
+                timeout=120
+            )
+            if response.status_code == 200:
+                summary_reply = response.json().get(
+                    "response",
+                    "⚠️ Summary failed."
+                )
+            else:
+                summary_reply = f"⚠️ Server error: {response.status_code}"
+        except Exception as e:
+            summary_reply = f"⚠️ Error: {e}"
+
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": summary_reply
+        })
+        st.rerun()
+
 # Chat logic
 if submitted and user_input.strip():
-
     st.session_state.messages.append({
         "role": "user",
         "content": user_input
     })
 
     reply = None
-
     try:
         response = requests.post(
             f"{BACKEND_URL}/chat",
@@ -99,99 +153,31 @@ if submitted and user_input.strip():
     except Exception as e:
         reply = f"⚠️ Error: {e}"
 
-
-    # Simulate typing animation
     if reply:
-
-        streamed_reply = ""
-        placeholder = st.empty()
-
-        for word in reply.split():
-
-            streamed_reply += word + " "
-
-            placeholder.markdown(
-                f"🤖: {streamed_reply}"
-            )
-
-            time.sleep(0.04)
-
         st.session_state.messages.append({
             "role": "assistant",
-            "content": streamed_reply
+            "content": reply
         })
+    st.rerun()
 
-
-# Display chat history
+# Display chat history in reverse order (newest messages at the top, older ones below)
+turns = []
+current_turn = []
 for msg in st.session_state.messages:
+    if msg.get("role") == "user" and current_turn:
+        turns.append(current_turn)
+        current_turn = [msg]
+    else:
+        current_turn.append(msg)
+if current_turn:
+    turns.append(current_turn)
 
-    with st.chat_message(
-        "user" if msg["role"] == "user" else "assistant"
-    ):
-
-        st.markdown(
-            f"{'👤' if msg['role'] == 'user' else '🤖'}: "
-            f"{msg['content']}"
-        )
-
-
-# Optional PDF upload
-uploaded_pdf = st.file_uploader(
-    "📄 Upload a PDF",
-    type="pdf"
-)
-
-if uploaded_pdf:
-
-    reader = PdfReader(io.BytesIO(uploaded_pdf.read()))
-
-    text = ""
-
-    for page in reader.pages:
-        extracted = page.extract_text()
-        if extracted:
-            text += extracted
-
-    # Limit text sent to backend
-    summary_prompt = (
-        f"Summarize this document:\n{text[:2000]}"
-    )
-
-    st.session_state.messages.append({
-        "role": "user",
-        "content": summary_prompt
-    })
-
-    try:
-
-        response = requests.post(
-            f"{BACKEND_URL}/chat",
-            json={
-                "user_id": st.session_state.user_id,
-                "message": summary_prompt
-            },
-            timeout=120
-        )
-
-        if response.status_code == 200:
-
-            summary_reply = response.json().get(
-                "response",
-                "⚠️ Summary failed."
-            )
-
-        else:
-
-            summary_reply = (
-                f"⚠️ Server error: {response.status_code}"
-            )
-
-    except Exception as e:
-
-        summary_reply = f"⚠️ Error: {e}"
-
-
-    st.session_state.messages.append({
-        "role": "assistant",
-        "content": summary_reply
-    })
+for turn in reversed(turns):
+    for msg in turn:
+        with st.chat_message(
+            "user" if msg["role"] == "user" else "assistant"
+        ):
+            st.markdown(
+                f"{'👤' if msg['role'] == 'user' else '🤖'}: "
+                f"{msg['content']}"
+            )

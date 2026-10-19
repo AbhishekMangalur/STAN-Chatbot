@@ -114,4 +114,4 @@ GOOGLE_API_KEY=your-key-here
 
 ## 📄 License
 
-This project is licensed for educational use as part of the STAN Internship Challenge.
+This project is licensed for educational purpose only.

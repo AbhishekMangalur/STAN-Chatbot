@@ -21,10 +21,22 @@
 #     return None
 
 
+import os
+import shutil
 from tinydb import TinyDB, Query
 
-# Initialize the database
-db = TinyDB("memory.json")
+# In serverless environments like Vercel/AWS Lambda, root is read-only; use /tmp
+if os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+    DB_PATH = "/tmp/memory.json"
+    if not os.path.exists(DB_PATH) and os.path.exists("memory.json"):
+        try:
+            shutil.copy("memory.json", DB_PATH)
+        except Exception:
+            pass
+else:
+    DB_PATH = "memory.json"
+
+db = TinyDB(DB_PATH)
 User = Query()
 
 # Retrieve a user's memory

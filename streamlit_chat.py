@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
-import pymupdf
+import io
+from pypdf import PdfReader
 import time
 import os
 
@@ -142,15 +143,14 @@ uploaded_pdf = st.file_uploader(
 
 if uploaded_pdf:
 
-    doc = pymupdf.open(
-        stream=uploaded_pdf.read(),
-        filetype="pdf"
-    )
+    reader = PdfReader(io.BytesIO(uploaded_pdf.read()))
 
     text = ""
 
-    for page in doc:
-        text += page.get_text()
+    for page in reader.pages:
+        extracted = page.extract_text()
+        if extracted:
+            text += extracted
 
     # Limit text sent to backend
     summary_prompt = (

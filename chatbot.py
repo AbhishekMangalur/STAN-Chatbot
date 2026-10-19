@@ -39,13 +39,20 @@
 #     return reply, memory
 
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from config import GOOGLE_API_KEY
 from utils import detect_tone, ensure_identity, confirm_fact
 
-genai.configure(api_key=GOOGLE_API_KEY)
+client = genai.Client(api_key=GOOGLE_API_KEY) if GOOGLE_API_KEY else None
 
 def generate_response(message, memory):
+    global client
+    if client is None:
+        from config import GOOGLE_API_KEY as key
+        if key:
+            client = genai.Client(api_key=key)
+
     tone = detect_tone(message)
     system_prompt = f"You are a helpful assistant. Speak in a {tone} tone."
     ensure_identity(memory)
@@ -59,11 +66,22 @@ def generate_response(message, memory):
             return reply, memory
 
     try:
-        model = genai.GenerativeModel("gemini-2.5-flash")
-        chat = model.start_chat(history=[
-            {"role": "user" if msg["role"] == "user" else "model", "parts": [msg["content"]]}
+        history = [
+            types.Content(
+                role="user" if msg.get("role") == "user" else "model",
+                parts=[types.Part.from_text(text=msg.get("content", ""))]
+            )
             for msg in memory
-        ])
+            if msg.get("role") in ["user", "assistant", "model"]
+        ]
+
+        chat = client.chats.create(
+            model="gemini-2.5-flash",
+            history=history,
+            config=types.GenerateContentConfig(
+                system_instruction=system_prompt
+            )
+        )
         response = chat.send_message(message)
         reply = response.text.strip()
         print("[Gemini reply]:", reply)
@@ -75,3 +93,4 @@ def generate_response(message, memory):
     memory.append({"role": "user", "content": message})
     memory.append({"role": "assistant", "content": reply})
     return reply, memory
+
